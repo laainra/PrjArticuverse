@@ -29,51 +29,59 @@ class ExhibitionController extends ResourceController
 
         return $this->respond($response);
     }
-    public function delete($id = null)
+    public function deleteExhibition($id)
     {
         $ExhibitionModel = new \App\Models\ExhibitionModel();
         $ExhibitionModel->delete($id);
-
+    
         return $this->respondDeleted([
             'status' => 'success',
             'message' => 'Exhibition deleted successfully',
         ]);
     }
+    
 
 
     public function create()
     {
         $ExhibitionModel = new \App\Models\ExhibitionModel();
-
-
-        if (empty($nama) || empty($description) || empty($location) || empty($poster) || empty($start_date)|| empty($end_date)) {
+        $nama = $this->request->getVar('name');
+        $description = $this->request->getVar('description');
+        $location = $this->request->getVar('location');
+        $poster = $this->request->getVar('poster');
+        $start_date = $this->request->getVar('start_date');
+        $end_date = $this->request->getVar('end_date');
+    
+        if (empty($nama) || empty($description) || empty($location) || empty($poster) || empty($start_date) || empty($end_date)) {
             $response = [
                 'status' => 400,
                 'message' => 'Bad Request - Missing required data',
             ];
         } else {
             $data = [
-
-                'name' => $this->request->getVar('name'),
-                'description' => $this->request->getVar('description'),
-                'location' => $this->request->getVar('location'),
-                'poster' => $this->request->getFile('poster'),
-                'start_date' => $this->request->getVar('start_date'),
-                'end_date' => $this->request->getVar('end_date'),
+                'name' => $nama,
+                'description' => $description,
+                'location' => $location,
+                'poster' => $poster,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
             ];
+    
+            $ExhibitionModel->insert($data);
         }
-
-        $ExhibitionModel->insert($data);
-
+    
         return $this->respondCreated([
             'status' => 'success',
             'message' => 'Exhibition created successfully',
-            'data'=>$data
+            'data' => $data
         ]);
     }
 
+    
 
-    public function update($id = null)
+
+
+    public function updateExhibition($id)
     {
         echo "ID: $id";
         $ExhibitionModel = new \App\Models\ExhibitionModel();
@@ -84,7 +92,7 @@ class ExhibitionController extends ResourceController
                 'name' => $this->request->getVar('name'),
                 'description' => $this->request->getVar('description'),
                 'location' => $this->request->getVar('location'),
-                'poster' => $this->request->getFile('poster'),
+                'poster' => $this->request->getVar('poster'),
                 'start_date' => $this->request->getVar('start_date'),
                 'end_date' => $this->request->getVar('end_date'),
     
