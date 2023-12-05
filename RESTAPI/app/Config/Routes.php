@@ -33,5 +33,5 @@ $routes->group("api", function ($routes) {
     $routes->match(['post', 'options'],"register", "Auth::register");
     $routes->match(['post', 'options'],"login", "Auth::login");
     $routes->match(['get', 'options'],"users", "UserController::index", ['filter' => 'authFilter']);
-    $routes->get('user/(:num)', 'UserController::getUserById/$1');
+    $routes->match(['get', 'options'],'user', 'UserController::getUserById');
 });
