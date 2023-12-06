@@ -112,4 +112,26 @@ class MaterialController extends ResourceController
     
         return $this->failNotFound('Data tidak ditemukan');
     }
+    public function show($id=null)
+    {
+        $MaterialModel = new \App\Models\MaterialModel();
+
+        // Fetch material details by ID
+        $material = $MaterialModel->find($id);
+
+        if (!empty($material)) {
+            $response = [
+                'status' => 'success',
+                'message' => 'Data retrieved successfully',
+                'data' =>  $material
+            ];
+        } else {
+            $response = [
+                'status' => 'error',
+                'message' => 'No data found',
+                'data' => []
+            ];
+        }
+        return $this->respond($response);
+    }
 }

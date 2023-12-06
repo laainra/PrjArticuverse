@@ -14,6 +14,7 @@ $routes->resource('material', ['controller' => 'MaterialController']);
 $routes->resource('exhibition', ['controller' => 'ExhibitionController']);
 $routes->resource('category', ['controller' => 'CategoryController']);
 $routes->resource('genre', ['controller' => 'GenreController']);
+$routes->match(['get', 'options'], 'material/(:segment)', 'MaterialController::show/$1');
 
 $routes->match(['post', 'options'], 'auth/register', 'Auth::register');
 $routes->match(['post', 'options'], 'auth/login', 'Auth::login');
