@@ -77,10 +77,6 @@ class ExhibitionController extends ResourceController
         ]);
     }
 
-    
-
-
-
     public function updateExhibition($id)
     {
         echo "ID: $id";

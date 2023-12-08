@@ -33,11 +33,11 @@ class Auth extends Controller
 
         $key = getenv('JWT_SECRET');
         $iat = time(); // current timestamp value
-        $exp = $iat + 3600;
+        $exp = $iat + 36000000;
 
         $payload = [
-            "iss" => "Issuer of the JWT",
-            "aud" => "Audience that the JWT",
+            "iss" => $user->id,
+            "aud" => $user->username,
             "sub" => "Subject of the JWT",
             "iat" => $iat, //Time the JWT issued at
             "exp" => $exp, // Expiration time of token

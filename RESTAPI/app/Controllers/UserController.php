@@ -1,12 +1,26 @@
 <?php
 
 namespace App\Controllers;
+use CodeIgniter\Filters\FilterInterface;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Exception;
+
 
 use CodeIgniter\RESTful\ResourceController;
 
 class UserController extends ResourceController
 {
     protected $format = 'json';
+    protected $request;
+
+    public function __construct()
+    {
+        $this->request = service('request');
+    }
+
 
     public function index()
     {
@@ -41,20 +55,48 @@ class UserController extends ResourceController
         ]);
     }
 
-    public function getUserById($userId)
+    public function getUserById()
     {
-        // Assuming you have a model named UserModel
+
         $userModel = new \App\Models\UserModel();
+        $key = getenv('JWT_SECRET');
+        $header = $this->request->getHeader("Authorization");
+        $token = null;
 
-        // Fetch user data by ID from the model
-        $user = $userModel->find($userId);
-
-        if ($user) {
-            // Respond with JSON data
-            return $this->respond($user, 200);
-        } else {
-            // Respond with a not found status
-            return $this->failNotFound('User not found');
+        if(!empty($header)) {
+            if (preg_match('/Bearer\s(\S+)/', $header, $matches)) {
+                $token = $matches[1];
+            }
         }
+
+        try {
+            // $decoded = JWT::decode($token, $key, array("HS256"));
+            $decoded = JWT::decode($token, new Key($key, 'HS256'));
+            $userId = $decoded->iss;
+
+
+            $user = $userModel->find($userId);
+
+            $data = [
+                "id"=> $user->id,
+                "name"=> $user->name,
+                "username"=> $user->username,
+                "email"=> $user->email,
+                "description"=> $user->description,
+                "role"=> $user->role,
+                "created_at"=> $user->created_at,
+            ];
+
+            return $this->respond(['user' => $data]);
+
+
+
+        } catch (Exception $ex) {
+            $response = service('response');
+            $response->setBody('Access denied');
+            $response->setStatusCode(401);
+            return $response;
+        }
+
     }
 }
