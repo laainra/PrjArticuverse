@@ -45,11 +45,16 @@ class Auth extends Controller
         ];
 
         $token = JWT::encode($payload, $key, 'HS256');
-
+        $user_id = $user->id;
+        $role = $user->role;
+ 
         $response = [
             'message' => 'Login Succesful',
-            'token' => $token
+            'token' => $token,
+            'user_id' => $user_id,
+            'role' => $role
         ];
+         
 
         return $this->respond($response, 200);
     }

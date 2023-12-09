@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use PhpParser\Comment;
 
 class UserModel extends Model
 {
@@ -35,4 +36,27 @@ class UserModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function artworks()
+    {
+        return $this->hasMany(ArtworkModel::class, 'user_id', 'id');
+    }
+    public function likes()
+    {
+        return $this->hasMany(LikeModel::class, 'user_id', 'id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(CommentModel::class, 'user_id', 'id');
+    }
+
+    public function saved_artworks()
+    {
+        return $this->hasMany(SavedModel::class, 'user_id', 'id');
+    }
+    public function commissions()
+    {
+        return $this->hasMany(CommissionModel::class, 'user_id', 'id');
+    }
 }

@@ -84,6 +84,7 @@ class UserController extends ResourceController
                 "email"=> $user->email,
                 "description"=> $user->description,
                 "role"=> $user->role,
+                "avatar"=> $user->avatar,
                 "created_at"=> $user->created_at,
             ];
 
@@ -99,4 +100,72 @@ class UserController extends ResourceController
         }
 
     }
+    public function updateProfile()
+    {
+        $userModel = new \App\Models\UserModel();
+        $key = getenv('JWT_SECRET');
+        $header = $this->request->getHeader("Authorization");
+        $token = null;
+    
+        // Extract data from the request
+        $name = $this->request->getVar('name');
+        $description = $this->request->getVar('description');
+        $username = $this->request->getVar('username');
+        $email = $this->request->getVar('email');
+        $password = password_hash($this->request->getVar('password'), PASSWORD_DEFAULT);
+        $avatar = $this->request->getFile('avatar');
+    
+        if (!empty($header)) {
+            if (preg_match('/Bearer\s(\S+)/', $header, $matches)) {
+                $token = $matches[1];
+            }
+        }
+    
+        try {
+            $decoded = JWT::decode($token, new Key($key, 'HS256'));
+            $userId = $decoded->iss;
+    
+            $user = $userModel->find($userId);
+            if ($user) {
+                // Handle file upload
+                if ($avatar->isValid() && !$avatar->hasMoved()) {
+                    $newName = $avatar->getRandomName();
+                    $avatar->move('./path/to/upload/directory', $newName);
+                    $data['avatar'] = $newName;
+                }
+    
+                // Update user data
+                $data['name'] = $name;
+                $data['description'] = $description;
+                $data['username'] = $username;
+                $data['email'] = $email;
+                $data['password'] = $password;
+    
+                $proses = $userModel->update($userId, $data);
+    
+                if ($proses) {
+                    $response = [
+                        'status' => 200,
+                        'messages' => 'Data berhasil diubah',
+                        'data' => $data,
+                    ];
+                } else {
+                    $response = [
+                        'status' => 402,
+                        'messages' => 'Gagal diubah',
+                    ];
+                }
+    
+                return $this->respond($response);
+            }
+        } catch (Exception $ex) {
+            $response = service('response');
+            $response->setBody('Access denied');
+            $response->setStatusCode(401);
+            return $response;
+        }
+    
+        return $this->failNotFound('Data tidak ditemukan');
+    }
+    
 }

@@ -33,13 +33,13 @@ class ExhibitionController extends ResourceController
     {
         $ExhibitionModel = new \App\Models\ExhibitionModel();
         $ExhibitionModel->delete($id);
-    
+
         return $this->respondDeleted([
             'status' => 'success',
             'message' => 'Exhibition deleted successfully',
         ]);
     }
-    
+
 
 
     public function create()
@@ -48,33 +48,42 @@ class ExhibitionController extends ResourceController
         $nama = $this->request->getVar('name');
         $description = $this->request->getVar('description');
         $location = $this->request->getVar('location');
-        $poster = $this->request->getVar('poster');
+        $poster = $this->request->getFile('poster');
         $start_date = $this->request->getVar('start_date');
         $end_date = $this->request->getVar('end_date');
-    
+
         if (empty($nama) || empty($description) || empty($location) || empty($poster) || empty($start_date) || empty($end_date)) {
             $response = [
                 'status' => 400,
                 'message' => 'Bad Request - Missing required data',
             ];
+
+            return $this->respond($response, 400);
         } else {
-            $data = [
-                'name' => $nama,
-                'description' => $description,
-                'location' => $location,
-                'poster' => $poster,
-                'start_date' => $start_date,
-                'end_date' => $end_date,
-            ];
-    
-            $ExhibitionModel->insert($data);
+
+            if ($poster->isValid() && !$poster->hasMoved()) {
+                // Move the uploaded file to the desired directory
+                $newName = $poster->getRandomName();
+                $poster->move('./path/to/upload/directory', $newName);
+
+                $data = [
+                    'name' => $nama,
+                    'description' => $description,
+                    'location' => $location,
+                    'poster' => $newName,
+                    'start_date' => $start_date,
+                    'end_date' => $end_date,
+                ];
+
+                $ExhibitionModel->insert($data);
+            }
+
+            return $this->respondCreated([
+                'status' => 'success',
+                'message' => 'Exhibition created successfully',
+                'data' => $data
+            ]);
         }
-    
-        return $this->respondCreated([
-            'status' => 'success',
-            'message' => 'Exhibition created successfully',
-            'data' => $data
-        ]);
     }
 
     public function updateExhibition($id)
@@ -84,6 +93,9 @@ class ExhibitionController extends ResourceController
         $exhibition = $ExhibitionModel->find($id);
 
         if ($exhibition) {
+
+            $jsonData = $this->request->getJSON();
+            
             $data = [
                 'name' => $this->request->getVar('name'),
                 'description' => $this->request->getVar('description'),
@@ -91,11 +103,11 @@ class ExhibitionController extends ResourceController
                 'poster' => $this->request->getVar('poster'),
                 'start_date' => $this->request->getVar('start_date'),
                 'end_date' => $this->request->getVar('end_date'),
-    
+
             ];
-    
+
             $proses = $ExhibitionModel->update($id, $data);
-    
+
             if ($proses) {
                 $response = [
                     'status' => 200,
@@ -108,10 +120,10 @@ class ExhibitionController extends ResourceController
                     'messages' => 'Gagal diubah',
                 ];
             }
-    
+
             return $this->respond($response);
         }
-    
+
         return $this->failNotFound('Data tidak ditemukan');
     }
 }

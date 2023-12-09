@@ -12,7 +12,7 @@ class CommentModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = ['body','user_id','artwork_id'];
 
     // Dates
     protected $useTimestamps = false;
@@ -37,4 +37,9 @@ class CommentModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function user()
+    {
+        return $this->belongsTo(UserModel::class, 'user_id', 'id');
+    }
 }

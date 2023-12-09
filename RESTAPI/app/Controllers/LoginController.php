@@ -35,19 +35,24 @@ class Login extends BaseController
         $exp = $iat + 3600;
  
         $payload = array(
-            "iss" => "Issuer of the JWT",
+            "iss" => $user->id,
             "aud" => "Audience that the JWT",
             "sub" => "Subject of the JWT",
             "iat" => $iat, //Time the JWT issued at
             "exp" => $exp, // Expiration time of token
             "email" => $user['email'],
+            "user_id" => $user['user_id'],
         );
          
         $token = JWT::encode($payload, $key, 'HS256');
+        $user_id = $user->id;
+        $role = $user->role;
  
         $response = [
             'message' => 'Login Succesful',
-            'token' => $token
+            'token' => $token,
+            'user_id' => $user_id,
+            'role' => $role
         ];
          
         return $this->respond($response, 200);

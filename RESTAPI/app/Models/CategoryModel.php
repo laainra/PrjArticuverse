@@ -37,4 +37,10 @@ class CategoryModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function materials()
+    {
+        return $this->hasMany(\App\Models\MaterialModel::class, 'user_id', 'id');
+    }
+
 }

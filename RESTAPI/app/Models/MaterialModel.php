@@ -33,4 +33,9 @@ class MaterialModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function category()
+    {
+        return $this->belongsTo(\App\Models\CategoryModel::class, 'category', 'id');
+    }
 }
