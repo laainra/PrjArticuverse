@@ -9,7 +9,7 @@ class GenreModel extends Model
     protected $table            = 'genres';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
+    protected $returnType       = 'object';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = ['name','slug','img'];

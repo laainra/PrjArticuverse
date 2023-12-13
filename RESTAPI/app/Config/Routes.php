@@ -49,5 +49,11 @@ $routes->group("api", function ($routes) {
 });
 
 $routes->get('uploads/(:any)', 'MediaController::index/$1');
+$routes->match(['post', 'options'],'like-artwork/(:num)', 'LikeController::likeArtwork/$1'); 
+$routes->match(['post', 'options'],'save-artwork/(:num)', 'SavedController::saveArtwork/$1');
+$routes->match(['get', 'options'],'saved-artworks/(:num)', 'SavedController::getArtworksByUserId/$1');
 
-
+//support
+$routes->match(['post', 'options'], 'insert-support', 'CommissionController::create');
+$routes->match(['get', 'options'], 'support', 'CommissionController::index');
+$routes->match(['put', 'options'], 'validate-commission/(:any)', 'CommissionController::validateCommission/$1');

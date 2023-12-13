@@ -12,7 +12,7 @@ class LikeModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id' ,	'artwork_id' 	];
+    protected $allowedFields    = ['user_id' ,	'artwork_id' ];
 
     // Dates
     protected $useTimestamps = false;

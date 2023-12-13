@@ -9,10 +9,10 @@ class CommissionModel extends Model
     protected $table            = 'commissions';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
+    protected $returnType       = 'object';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['amount' ,	'method' ,	'status' ,	'user_id' ,	'artwork_id'];
+    protected $allowedFields    = ['amount' ,	'method' ,	'status' ,'proof',	'user_id' ,	'artwork_id'];
 
     // Dates
     protected $useTimestamps = false;

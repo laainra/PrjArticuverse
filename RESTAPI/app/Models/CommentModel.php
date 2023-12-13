@@ -9,7 +9,7 @@ class CommentModel extends Model
     protected $table            = 'comments';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
+    protected $returnType       = 'object';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = ['body','user_id','artwork_id'];

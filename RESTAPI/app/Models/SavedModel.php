@@ -9,7 +9,7 @@ class SavedModel extends Model
     protected $table            = 'saved_artworks';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
+    protected $returnType       = 'object';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = ['user_id' ,	'artwork_id'];
@@ -41,5 +41,10 @@ class SavedModel extends Model
     public function user()
     {
         return $this->belongsTo(UserModel::class, 'user_id', 'id');
+    }
+
+    public function getArtworksByUserId($userId)
+    {
+        return $this->where('user_id', $userId)->findAll();
     }
 }

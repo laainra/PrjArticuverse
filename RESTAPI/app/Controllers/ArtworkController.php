@@ -76,6 +76,7 @@ class ArtworkController extends ResourceController
 
         return $this->respond($response);
     }
+
     public function showArtworkById($id)
     {
         $ArtworkModel = new \App\Models\ArtworkModel();
@@ -147,9 +148,6 @@ class ArtworkController extends ResourceController
             // Move the uploaded file to the desired directory
             $newName = $media->getRandomName();
             $media->move('./path/to/upload/directory', $newName);
-
-            // Get the user ID from the authenticated user (assuming you have an authentication system in place)
-            // Implement this function to retrieve the user ID
 
             // Check if the genre exists, and get its ID
             $genre = $GenreModel->where('name', $genreName)->first();
