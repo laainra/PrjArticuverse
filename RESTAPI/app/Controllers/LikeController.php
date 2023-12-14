@@ -3,35 +3,106 @@
 namespace App\Controllers;
 
 use App\Models\LikeModel;
+use CodeIgniter\HTTP\ResponseInterface;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Exception;
 use CodeIgniter\API\ResponseTrait;
 
 class LikeController extends BaseController
 {
     use ResponseTrait;
 
+    public function checkLike($artworkId, $userId)
+    {
+
+        $key = getenv('JWT_SECRET');
+        $header = $this->request->getHeader("Authorization");
+        $token = null;
+    
+        if (!empty($header)) {
+            if (preg_match('/Bearer\s(\S+)/', $header, $matches)) {
+                $token = $matches[1];
+            }
+        }
+        $decoded = JWT::decode($token, new Key($key, 'HS256'));
+            $userId = isset($decoded->iss) ? $decoded->iss : null;
+        // Assuming you have a model named LikeModel to interact with the likes table
+        $likeModel = new LikeModel();
+
+        // Check if the artwork is liked by the user
+        $isLiked = $likeModel->isLikedByUser($artworkId, $userId);
+
+        // Return a JSON response
+        return $this->respond(['likedByUser' => $isLiked]);
+    }
+
     public function likeArtwork($artworkId)
     {
-        // Get the currently logged-in user's ID
-        $userId = $this->request->getVar('user_id'); // Assuming you send user_id with the request
+        $key = getenv('JWT_SECRET');
+        $header = $this->request->getHeader("Authorization");
+        $token = null;
+    
+        if (!empty($header)) {
+            if (preg_match('/Bearer\s(\S+)/', $header, $matches)) {
+                $token = $matches[1];
+            }
+        }
+    
+        try {
+            $decoded = JWT::decode($token, new Key($key, 'HS256'));
+            $userIdFromToken = isset($decoded->iss) ? $decoded->iss : null;
+            
+            // Check if the user has already liked the artwork
+            $likeModel = new LikeModel();
+            $existingLike = $likeModel
+                ->where(['artwork_id' => $artworkId, 'user_id' => $userIdFromToken])
+                ->first();
+    
+            if ($existingLike) {
+                // User has already liked, unlike it
+                $likeModel->delete($existingLike['id']);
+                $response['liked'] = false;
+            } else {
+                // User has not liked, like it
+                $likeModel->insert(['user_id' => $userIdFromToken, 'artwork_id' => $artworkId]);
+                $response['liked'] = true;
+            }
+    
+            // Get the updated number of likes for the artwork
+            $updatedLikes = $likeModel->where(['artwork_id' => $artworkId])->countAllResults();
+            $response['likesCount'] = $updatedLikes;
+    
+            return $this->respond($response);
+        } catch (Exception $e) {
+            // Handle JWT decoding errors
+            return $this->failUnauthorized('Invalid token');
+        }
+    }
+    
+    
 
-        // Check if the user has already liked the artwork
-        $likeModel = new LikeModel();
-        $existingLike = $likeModel->where(['user_id' => $userId, 'artwork_id' => $artworkId])->first();
 
-        if ($existingLike) {
-            // User has already liked, unlike it
-            $likeModel->delete($existingLike['id']);
-            $response['liked'] = false;
-        } else {
-            // User has not liked, like it
-            $likeModel->insert(['user_id' => $userId, 'artwork_id' => $artworkId]);
-            $response['liked'] = true;
+    public function getLikesByArtwork($artworkId)
+{
+    
+    try {
+        // Validate artwork_id (add your own validation rules)
+        if (empty($artworkId) || !is_numeric($artworkId)) {
+            throw new \Exception('Invalid artwork_id');
         }
 
-        // Get the updated number of likes for the artwork
-        $updatedLikes = $likeModel->where(['artwork_id' => $artworkId])->countAllResults();
-        $response['likesCount'] = $updatedLikes;
+        // Check if the artwork exists
+        $likeModel = new LikeModel();
+        $totalLikes = $likeModel->where(['artwork_id' => $artworkId])->countAllResults();
+
+        $response['totalLikes'] = $totalLikes;
 
         return $this->respond($response);
+    } catch (\Exception $e) {
+        // Handle the exception, log it, and return an error response
+        return $this->fail($e->getMessage(), 400);
     }
+}
+
 }

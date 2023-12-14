@@ -42,4 +42,11 @@ class LikeModel extends Model
     {
         return $this->belongsTo(UserModel::class, 'user_id', 'id');
     }
+    public function isLikedByUser($artworkId, $userId)
+    {
+        // Assuming you have a 'likes' table with columns 'artwork_id' and 'user_id'
+        $like = $this->where(['artwork_id' => $artworkId, 'user_id' => $userId])->first();
+
+        return !empty($like); // Return true if the like exists, false otherwise
+    }
 }

@@ -12,7 +12,7 @@ class ArtworkModel extends Model
     protected $returnType = 'object';
     protected $useSoftDeletes = false;
     protected $allowedFields = [
-        'title', 'description', 'media', 'artist', 'creation_year', 'genre', 'artist_id', 'user_id' 
+        'title', 'description', 'media', 'artist', 'creation_year', 'genre', 'artist_id', 'user_id'
     ];
 
     protected $useTimestamps = true;
@@ -41,7 +41,7 @@ class ArtworkModel extends Model
     {
         return $this->belongsTo(UserModel::class, 'user_id', 'id');
     }
-    
+
     public function getArtworksByUserId($userId)
     {
         // Use leftJoin to fetch artworks for a specific user

@@ -9,7 +9,7 @@ class CommentModel extends Model
     protected $table            = 'comments';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'object';
+    protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = ['body','user_id','artwork_id'];
@@ -42,4 +42,14 @@ class CommentModel extends Model
     {
         return $this->belongsTo(UserModel::class, 'user_id', 'id');
     }
+
+    public function getCommentsByArtwork($artworkId)
+    {
+        return $this->select('comments.*, users.username as username, users.avatar as avatar, artworks.id as artwork_id')
+                    ->join('users', 'users.id = comments.user_id', 'left')
+                    ->join('artworks', 'artworks.id = comments.artwork_id', 'left') // Add this line
+                    ->where('comments.artwork_id', $artworkId)
+                    ->findAll();
+    }
+    
 }

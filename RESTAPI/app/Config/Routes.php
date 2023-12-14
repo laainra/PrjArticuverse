@@ -50,10 +50,19 @@ $routes->group("api", function ($routes) {
 
 $routes->get('uploads/(:any)', 'MediaController::index/$1');
 $routes->match(['post', 'options'],'like-artwork/(:num)', 'LikeController::likeArtwork/$1'); 
+$routes->match(['get', 'options'],'get-likes/(:num)', 'LikeController::getLikesByArtwork/$1'); 
 $routes->match(['post', 'options'],'save-artwork/(:num)', 'SavedController::saveArtwork/$1');
 $routes->match(['get', 'options'],'saved-artworks/(:num)', 'SavedController::getArtworksByUserId/$1');
+$routes->match(['get', 'options'],'check-like/(:segment)/(:segment)', 'ArtworkController::checkLike/$1/$2');
+$routes->match(['get', 'options'],'genre-artworks/(:num)', 'ArtworkController::getArtworksByGenre/$1');
+
 
 //support
 $routes->match(['post', 'options'], 'insert-support', 'CommissionController::create');
 $routes->match(['get', 'options'], 'support', 'CommissionController::index');
 $routes->match(['put', 'options'], 'validate-commission/(:any)', 'CommissionController::validateCommission/$1');
+
+$routes->match(['get', 'options'],'getComments/(:num)', 'CommentController::getComments/$1');
+$routes->match(['post', 'options'],'createComment', 'CommentController::createComment');
+$routes->match(['put', 'options'],'updateComment/(:num)', 'CommentController::updateComment/$1');
+$routes->match(['delete', 'options'],'deleteComment/(:num)', 'CommentController::deleteComment/$1');
