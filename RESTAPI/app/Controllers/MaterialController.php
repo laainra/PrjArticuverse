@@ -71,7 +71,100 @@ class MaterialController extends ResourceController
     }
 
 
+    public function getMaterialsByCategory($categoryId)
+    {
+        $materialModel = new \App\Models\MaterialModel();
+        $materials = $materialModel
+            ->select('materials.*, categories.name as category_name')
+            ->join('categories', 'categories.id = materials.category', 'left')
+            ->where('materials.category', $categoryId)
+            ->findAll();
 
+        $formattedData = [];
+
+        if (!empty($materials)) {
+            foreach ($materials as $material) {
+                $formattedData[] = [
+                    'id' => $material->id,
+                    'title' => $material->title,
+                    'description' => $material->description,
+                    'path' => $material->path,
+                    'category_name' => $material->category_name,
+                    'category_id' => $material->category,
+                    'created_at' => $material->created_at,
+                    'updated_at' => $material->updated_at,
+                ];
+            }
+
+            $response = [
+                'status' => 'success',
+                'message' => 'Data retrieved successfully',
+                'data' => $formattedData
+            ];
+        } else {
+            $response = [
+                'status' => 'error',
+                'message' => 'No data found for the specified category',
+                'data' => []
+            ];
+        }
+
+        return $this->respond($response);
+    }
+
+    public function searchMaterials()
+    {
+        $request = $this->request;
+        $searchQuery = $request->getPost('search_query');
+
+        if (empty($searchQuery)) {
+            $response = [
+                'status' => 'error',
+                'message' => 'Search query is empty',
+                'data' => [],
+            ];
+
+            return $this->respond($response);
+        }
+
+        $materialModel = new \App\Models\MaterialModel();
+        $materials = $materialModel
+            ->select('materials.*, categories.name as category_name')
+            ->join('categories', 'categories.id = materials.category', 'left')
+            ->like('materials.title', $searchQuery)
+            ->orLike('materials.description', $searchQuery)
+            ->findAll();
+
+        $formattedData = [];
+
+        if (!empty($materials)) {
+            foreach ($materials as $material) {
+                $formattedData[] = [
+                    'id' => $material->id,
+                    'title' => $material->title,
+                    'description' => $material->description,
+                    'path' => $material->path,
+                    'category' => $material->category_name,
+                    'created_at' => $material->created_at,
+                    'updated_at' => $material->updated_at,
+                ];
+            }
+
+            $response = [
+                'status' => 'success',
+                'message' => 'Materials found successfully',
+                'data' => $formattedData,
+            ];
+        } else {
+            $response = [
+                'status' => 'error',
+                'message' => 'No materials found for the search query',
+                'data' => [],
+            ];
+        }
+
+        return $this->respond($response);
+    }
 
     public function deleteMaterial($id)
     {

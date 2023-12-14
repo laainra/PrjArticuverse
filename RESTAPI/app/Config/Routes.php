@@ -30,6 +30,8 @@ $routes->match(['put', 'options'], 'update-exhibition/(:any)', 'ExhibitionContro
 $routes->match(['post', 'options'], 'insert-material', 'MaterialController::create');
 $routes->match(['delete', 'options'], 'delete-material/(:any)', 'MaterialController::deleteMaterial/$1');
 $routes->match(['put', 'options'], 'update-material/(:any)', 'MaterialController::updateMaterial/$1');
+$routes->match(['get', 'options'], 'materials-category/(:any)', 'MaterialController::getMaterialsByCategory/$1');
+$routes->match(['get', 'options'], 'search-materials', 'MaterialController::searchMaterials');
 
 //artwork
 $routes->match(['post', 'options'], 'insert-artwork', 'ArtworkController::create');
@@ -39,6 +41,12 @@ $routes->match(['get', 'options'], 'artwork/(:any)', 'ArtworkController::showArt
 $routes->match(['get', 'options'], 'artwork', 'ArtworkController::index');
 $routes->match(['post', 'options'], 'search-artwork', 'ArtworkController::searchArtwork');
 $routes->match(['get', 'options'], 'artworks-user/(:any)', 'ArtworkController::getArtworksByUserId/$1');
+$routes->match(['post', 'options'],'like-artwork/(:num)', 'LikeController::likeArtwork/$1'); 
+$routes->match(['get', 'options'],'get-likes/(:num)', 'LikeController::getLikesByArtwork/$1'); 
+$routes->match(['post', 'options'],'save-artwork/(:num)', 'SavedController::saveArtwork/$1');
+$routes->match(['get', 'options'],'saved-artworks/(:num)', 'SavedController::getArtworksByUserId/$1');
+$routes->match(['get', 'options'],'check-like/(:segment)/(:segment)', 'ArtworkController::checkLike/$1/$2');
+$routes->match(['get', 'options'],'genre-artworks/(:num)', 'ArtworkController::getArtworksByGenre/$1');
 
 $routes->group("api", function ($routes) {
     $routes->match(['post', 'options'],"register", "Auth::register");
@@ -49,12 +57,7 @@ $routes->group("api", function ($routes) {
 });
 
 $routes->get('uploads/(:any)', 'MediaController::index/$1');
-$routes->match(['post', 'options'],'like-artwork/(:num)', 'LikeController::likeArtwork/$1'); 
-$routes->match(['get', 'options'],'get-likes/(:num)', 'LikeController::getLikesByArtwork/$1'); 
-$routes->match(['post', 'options'],'save-artwork/(:num)', 'SavedController::saveArtwork/$1');
-$routes->match(['get', 'options'],'saved-artworks/(:num)', 'SavedController::getArtworksByUserId/$1');
-$routes->match(['get', 'options'],'check-like/(:segment)/(:segment)', 'ArtworkController::checkLike/$1/$2');
-$routes->match(['get', 'options'],'genre-artworks/(:num)', 'ArtworkController::getArtworksByGenre/$1');
+
 
 
 //support
