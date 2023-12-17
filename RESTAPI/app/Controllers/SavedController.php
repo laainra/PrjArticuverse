@@ -30,6 +30,7 @@ class SavedController extends BaseController
 
         return $this->respond($response);
     }
+    
     public function getArtworksByUserId($userId)
     {
         $savedModel = new SavedModel();

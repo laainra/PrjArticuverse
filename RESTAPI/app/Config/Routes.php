@@ -64,7 +64,10 @@ $routes->get('uploads/(:any)', 'MediaController::index/$1');
 $routes->match(['post', 'options'], 'insert-support', 'CommissionController::create');
 $routes->match(['get', 'options'], 'support', 'CommissionController::index');
 $routes->match(['put', 'options'], 'validate-commission/(:any)', 'CommissionController::validateCommission/$1');
+$routes->match(['delete', 'options'], 'delete-commission/(:any)', 'CommissionController::deleteCommission/$1');
+$routes->match(['get', 'options'], 'user-commission/(:any)', 'CommissionController::userCommission/$1');
 
+//comments
 $routes->match(['get', 'options'],'getComments/(:num)', 'CommentController::getComments/$1');
 $routes->match(['post', 'options'],'createComment', 'CommentController::createComment');
 $routes->match(['put', 'options'],'updateComment/(:num)', 'CommentController::updateComment/$1');

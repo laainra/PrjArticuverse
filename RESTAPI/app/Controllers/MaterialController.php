@@ -185,18 +185,12 @@ class MaterialController extends ResourceController
 
         $title = $this->request->getVar('title');
         $description = $this->request->getVar('description');
-        $categoryName = $this->request->getVar('category');  // Assuming the category name is sent in the request
+        $categoryName = $this->request->getVar('category');
         $path = $this->request->getVar('path');
 
-        if (empty($title) || empty($description) || empty($categoryName) || empty($path)) {
-            $response = [
-                'status' => 400,
-                'message' => 'Bad Request - Missing required data',
-            ];
-        } else {
             // Check if the category exists, and get its ID
             $category = $CategoryModel->where('name', $categoryName)->first();
-            $categoryId = $category ? $category['id'] : null;
+            $categoryId = $category ? $category->id : null;
 
             $data = [
                 'title' => $title,
@@ -205,16 +199,124 @@ class MaterialController extends ResourceController
                 'path' => $path,
             ];
 
-            $MaterialModel->insert($data);
-        }
 
-        return $this->respondCreated([
-            'status' => 'success',
-            'message' => 'Exhibition created successfully',
-            'data' => $data
-        ]);
+           $proses = $MaterialModel->insert($data);
+    
+            if ($proses) {
+                $response = [
+                    'status' => 200,
+                    'messages' => 'Data berhasil ditambah',
+                    'data' => $data,
+                ];
+            } else {
+                $response = [
+                    'status' => 402,
+                    'messages' => 'Gagal ditaambah',
+                ];
+            }
+            return $this->response->setJSON($response);
     }
 
+    public function updateArtwork($id)
+    {
+        $ArtworkModel = new \App\Models\ArtworkModel();
+        $Artwork = $ArtworkModel->find($id);
+        $GenreModel = new \App\Models\GenreModel();
+    
+        if ($Artwork) {
+            // Get form data from the request
+            $title = $this->request->getVar('title') ?? null;
+            $description = $this->request->getVar('description') ?? null;
+            $genreName = $this->request->getVar('genre') ?? null;
+            $artist = $this->request->getVar('artist') ?? null;
+            $creation_year = $this->request->getVar('creation_year') ?? null;
+            $genreName = $this->request->getVar('genre');
+            $userId = $this->request->getVar('user_id'); 
+    
+            $genre = $GenreModel->where('name', $genreName)->first();
+            $genreId = $genre ? $genre->id : null;
+    
+            $data = [
+                'title' => $title,
+                'description' => $description,
+                'genre' => $genreId,
+                'artist' => $artist,
+                'creation_year' => $creation_year,
+                'user_id' => $userId
+            ];
+    
+            $proses = $ArtworkModel->update($id, $data);
+    
+            if ($proses) {
+                $response = [
+                    'status' => 200,
+                    'messages' => 'Data berhasil diubah',
+                    'data' => $data,
+                ];
+            } else {
+                $response = [
+                    'status' => 402,
+                    'messages' => 'Gagal diubah',
+                ];
+            }
+    
+            // Return JSON response
+            return $this->response->setJSON($response);
+        }
+    
+        return $this->failNotFound('Data tidak ditemukan');
+    }
+
+    public function updateMaterial($id)
+    {
+        $MaterialModel = new \App\Models\MaterialModel();
+        $material = $MaterialModel->find($id);
+
+        if ($material) {
+            // Retrieve data from the request using getVar
+            $title = $this->request->getVar('title');
+            $description = $this->request->getVar('description');
+            $categoryName = $this->request->getVar('category');
+            $path = $this->request->getVar('path');
+
+            // Assuming the category name is sent in the request
+            $CategoryModel = new \App\Models\CategoryModel();
+
+            // Retrieve the category by name
+            $category = $CategoryModel->where('name', $categoryName)->first();
+
+            // If category found, get its id, otherwise set to null
+            $categoryId = $category ? $category->id : null;
+
+            // Prepare the data array
+            $data = [
+                'title' => $title,
+                'description' => $description,
+                'category' => $categoryId,
+                'path' => $path,
+            ];
+
+            // Update the material
+            $proses = $MaterialModel->update($id, $data);
+
+            if ($proses) {
+                $response = [
+                    'status' => 200,
+                    'messages' => 'Data berhasil diubah',
+                    'data' => $data,
+                ];
+            } else {
+                $response = [
+                    'status' => 402,
+                    'messages' => 'Gagal diubah',
+                ];
+            }
+
+            return $this->respond($response);
+        }
+
+        return $this->failNotFound('Data tidak ditemukan');
+    }
 
     // public function updateMaterial($id)
     // {
@@ -222,11 +324,14 @@ class MaterialController extends ResourceController
     //     $material = $MaterialModel->find($id);
 
     //     if ($material) {
-    //         // Retrieve data from the request using getVar
-    //         $title = $this->request->getVar('title');
-    //         $description = $this->request->getVar('description');
-    //         $categoryName = $this->request->getVar('category');
-    //         $path = $this->request->getVar('path');
+    //         // Retrieve JSON data from the request
+    //         $jsonData = $this->request->getJSON();
+
+    //         // Access individual values from JSON data
+    //         $title = $jsonData->title ?? null;
+    //         $description = $jsonData->description ?? null;
+    //         $categoryName = $jsonData->category ?? null;
+    //         $path = $jsonData->path ?? null;
 
     //         // Assuming the category name is sent in the request
     //         $CategoryModel = new \App\Models\CategoryModel();
@@ -266,60 +371,6 @@ class MaterialController extends ResourceController
 
     //     return $this->failNotFound('Data tidak ditemukan');
     // }
-
-    public function updateMaterial($id)
-    {
-        $MaterialModel = new \App\Models\MaterialModel();
-        $material = $MaterialModel->find($id);
-
-        if ($material) {
-            // Retrieve JSON data from the request
-            $jsonData = $this->request->getJSON();
-
-            // Access individual values from JSON data
-            $title = $jsonData->title ?? null;
-            $description = $jsonData->description ?? null;
-            $categoryName = $jsonData->category ?? null;
-            $path = $jsonData->path ?? null;
-
-            // Assuming the category name is sent in the request
-            $CategoryModel = new \App\Models\CategoryModel();
-
-            // Retrieve the category by name
-            $category = $CategoryModel->where('name', $categoryName)->first();
-
-            // If category found, get its id, otherwise set to null
-            $categoryId = $category ? $category['id'] : null;
-
-            // Prepare the data array
-            $data = [
-                'title' => $title,
-                'description' => $description,
-                'category' => $categoryId,
-                'path' => $path,
-            ];
-
-            // Update the material
-            $proses = $MaterialModel->update($id, $data);
-
-            if ($proses) {
-                $response = [
-                    'status' => 200,
-                    'messages' => 'Data berhasil diubah',
-                    'data' => $data,
-                ];
-            } else {
-                $response = [
-                    'status' => 402,
-                    'messages' => 'Gagal diubah',
-                ];
-            }
-
-            return $this->respond($response);
-        }
-
-        return $this->failNotFound('Data tidak ditemukan');
-    }
 
 
     public function show($id = null)

@@ -110,7 +110,7 @@ class ArtworkController extends ResourceController
         $title = $this->request->getVar('title');
         $description = $this->request->getVar('description');
         $genreName = $this->request->getVar('genre');
-        $userId = $this->request->getVar('user_id'); // Assuming there is a 'genre' field
+        $userId = $this->request->getVar('user_id'); 
     
         // Check if the required fields are empty
         if (empty($title) || empty($description) || empty($genreName)) {
@@ -181,41 +181,32 @@ class ArtworkController extends ResourceController
     {
         $ArtworkModel = new \App\Models\ArtworkModel();
         $Artwork = $ArtworkModel->find($id);
-
+        $GenreModel = new \App\Models\GenreModel();
+    
         if ($Artwork) {
-            // Access individual values from form data
+            // Get form data from the request
             $title = $this->request->getVar('title') ?? null;
             $description = $this->request->getVar('description') ?? null;
             $genreName = $this->request->getVar('genre') ?? null;
             $artist = $this->request->getVar('artist') ?? null;
             $creation_year = $this->request->getVar('creation_year') ?? null;
-
-            // Assuming the Genre name is sent in the request
-            $GenreModel = new \App\Models\GenreModel();
-
-            // Retrieve the Genre by name
+            $genreName = $this->request->getVar('genre');
+            $userId = $this->request->getVar('user_id'); 
+    
             $genre = $GenreModel->where('name', $genreName)->first();
-
-            // If Genre found, get its id, otherwise set to null
-            $genreId = $genre ? $genre['id'] : null;
-
-            // Get the user ID from the authenticated user (assuming you have an authentication system in place)
-            $userId = $this->request->getVar('user_id');
-
+            $genreId = $genre ? $genre->id : null;
+    
             $data = [
-                'id' => $Artwork->id,
                 'title' => $title,
                 'description' => $description,
                 'genre' => $genreId,
-                // 'media' => $media,
                 'artist' => $artist,
                 'creation_year' => $creation_year,
-                'user_id' => $userId,
+                'user_id' => $userId
             ];
-
-            // Update the Artwork
+    
             $proses = $ArtworkModel->update($id, $data);
-
+    
             if ($proses) {
                 $response = [
                     'status' => 200,
@@ -228,15 +219,14 @@ class ArtworkController extends ResourceController
                     'messages' => 'Gagal diubah',
                 ];
             }
-
-            return $this->respond($response);
+    
+            // Return JSON response
+            return $this->response->setJSON($response);
         }
-
+    
         return $this->failNotFound('Data tidak ditemukan');
     }
-
-
-
+    
     protected function getAuthenticatedUserId()
     {
         $key = getenv('JWT_SECRET');

@@ -85,6 +85,7 @@ class UserController extends ResourceController
                 "description"=> $user->description,
                 "role"=> $user->role,
                 "avatar"=> $user->avatar,
+                "bank_acc"=> $user->bank_acc,
                 "created_at"=> $user->created_at,
             ];
 
@@ -112,6 +113,7 @@ class UserController extends ResourceController
         $description = $this->request->getVar('description');
         $username = $this->request->getVar('username');
         $email = $this->request->getVar('email');
+        $bank_acc = $this->request->getVar('bank_acc');
         $password = password_hash($this->request->getVar('password'), PASSWORD_DEFAULT);
         $avatar = $this->request->getFile('avatar');
     
@@ -140,6 +142,7 @@ class UserController extends ResourceController
                 $data['username'] = $username;
                 $data['email'] = $email;
                 $data['password'] = $password;
+                $data['bank_acc'] = $bank_acc;
     
                 $proses = $userModel->update($userId, $data);
     

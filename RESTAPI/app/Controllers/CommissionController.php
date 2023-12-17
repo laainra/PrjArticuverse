@@ -30,6 +30,7 @@ class CommissionController extends BaseController
                     'amount' => $commission->amount,
                     'method' => $commission->method,
                     'status' => $commission->status,
+                    'proof' => $commission->proof,
                     'artist' => $commission->artwork_artist,
                     'user_id' => $commission->user_id,
                     'artwork_id' => $commission->artwork_id,
@@ -55,6 +56,48 @@ class CommissionController extends BaseController
 
         return $this->respond($response);
     }
+    public function userCommission($userId)
+    {
+        $commissionModel = new \App\Models\CommissionModel();
+    
+        // Get total commission using Query Builder
+        $totalCommissionResult = $commissionModel
+            ->select('SUM(commissions.amount) as total_commission')
+            ->where('commissions.user_id', $userId)
+            ->get()
+            ->getRow();
+    
+        $totalCommission = $totalCommissionResult ? $totalCommissionResult->total_commission : 0;
+    
+        // Get individual commissions
+        $commissions = $commissionModel
+            ->select('artworks.title as artwork_title', 'commissions.amount', 'users.name as user_name', 'users.username as user_username')
+            ->join('artworks', 'artworks.id = commissions.artwork_id', 'left')
+            ->join('users', 'users.id = commissions.user_id', 'left')
+            ->where('commissions.user_id', $userId)
+            ->get()
+            ->getResult();
+    
+
+        if (!empty($commissions)) {
+
+    
+            $response = [
+                'status' => 'success',
+                'message' => 'Data retrieved successfully',
+                'data' => $totalCommission,
+            ];
+        } else {
+            $response = [
+                'status' => 'error',
+                'message' => 'No data found',
+                'data' => [],
+            ];
+        }
+    
+        return $this->respond($response);
+    }
+    
 
     public function create()
     {
@@ -111,23 +154,34 @@ class CommissionController extends BaseController
     {
         $commissionModel = new \App\Models\CommissionModel();
     
-        // Fetch the commission by ID
+    
         $commission = $commissionModel->find($id);
     
-        // Check if the commission exists
+   
         if (!$commission) {
             return $this->fail('Commission not found', 404);
         }
     
-        // Check if the commission is already validated
+    
         if ($commission->status === 'validated') {
             return $this->fail('Commission is already validated', 400);
         }
     
-        // Update the commission status to 'validated'
+       
         $commissionModel->update($id, ['status' => 'validated']);
     
         return $this->respond(['message' => 'Commission validated successfully'], 200);
+    }
+
+    public function deleteCommission($id)
+    {
+        $CommissionModel = new \App\Models\CommissionModel();
+        $CommissionModel->delete($id);
+
+        return $this->respondDeleted([
+            'status' => 'success',
+            'message' => 'Commission deleted successfully',
+        ]);
     }
     
 
