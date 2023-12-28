@@ -172,6 +172,22 @@ class CommissionController extends BaseController
     
         return $this->respond(['message' => 'Commission validated successfully'], 200);
     }
+    public function unvalidateCommission($id)
+    {
+        $commissionModel = new \App\Models\CommissionModel();
+    
+    
+        $commission = $commissionModel->find($id);
+    
+   
+        if (!$commission) {
+            return $this->fail('Commission not found', 404);
+        }    
+       
+        $commissionModel->update($id, ['status' => 'not validated']);
+    
+        return $this->respond(['message' => 'Commission validated successfully'], 200);
+    }
 
     public function deleteCommission($id)
     {

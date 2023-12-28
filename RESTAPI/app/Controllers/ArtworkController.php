@@ -15,8 +15,8 @@ class ArtworkController extends ResourceController
     {
         $ArtworkModel = new \App\Models\ArtworkModel();
         $artworks = $ArtworkModel->select('artworks.*, genres.name as genre_name, users.name as user_name, users.username as user_username, users.avatar as user_avatar')
-            ->join('genres', 'genres.id = artworks.genre', 'left') // Adjust the join condition
-            ->join('users', 'users.id = artworks.user_id', 'left')  // Adjust the join condition
+            ->join('genres', 'genres.id = artworks.genre', 'left') 
+            ->join('users', 'users.id = artworks.user_id', 'left') 
             ->findAll();
 
         $formattedData = [];
@@ -260,12 +260,9 @@ class ArtworkController extends ResourceController
     public function searchArtwork()
     {
         $ArtworkModel = new \App\Models\ArtworkModel();
-
-        // Assuming the search query is sent in the request body
         $data = $this->request->getJSON();
         $search = $data->search;
 
-        // Perform the search based on the searchQuery
         $result = $ArtworkModel->like('title', $search)->findAll();
 
         return $this->respond([

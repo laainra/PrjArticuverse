@@ -14,16 +14,15 @@ class SavedController extends BaseController
         // Get the currently logged-in user's ID
         $userId = $this->request->getVar('user_id'); // Assuming you send user_id with the request
 
-        // Check if the artwork is already saved
         $savedModel = new SavedModel();
         $existingSaved = $savedModel->where(['user_id' => $userId, 'artwork_id' => $artworkId])->first();
 
         if ($existingSaved) {
-            // Artwork is already saved, unsave it
+     
             $savedModel->delete($existingSaved['id']);
             $response['saved'] = false;
         } else {
-            // Artwork is not saved, save it
+        
             $savedModel->insert(['user_id' => $userId, 'artwork_id' => $artworkId]);
             $response['saved'] = true;
         }

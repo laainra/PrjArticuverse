@@ -27,13 +27,8 @@ class LikeController extends BaseController
         }
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
             $userId = isset($decoded->iss) ? $decoded->iss : null;
-        // Assuming you have a model named LikeModel to interact with the likes table
         $likeModel = new LikeModel();
-
-        // Check if the artwork is liked by the user
         $isLiked = $likeModel->isLikedByUser($artworkId, $userId);
-
-        // Return a JSON response
         return $this->respond(['likedByUser' => $isLiked]);
     }
 
@@ -53,29 +48,23 @@ class LikeController extends BaseController
             $decoded = JWT::decode($token, new Key($key, 'HS256'));
             $userIdFromToken = isset($decoded->iss) ? $decoded->iss : null;
             
-            // Check if the user has already liked the artwork
             $likeModel = new LikeModel();
             $existingLike = $likeModel
                 ->where(['artwork_id' => $artworkId, 'user_id' => $userIdFromToken])
                 ->first();
     
             if ($existingLike) {
-                // User has already liked, unlike it
                 $likeModel->delete($existingLike['id']);
                 $response['liked'] = false;
             } else {
-                // User has not liked, like it
                 $likeModel->insert(['user_id' => $userIdFromToken, 'artwork_id' => $artworkId]);
                 $response['liked'] = true;
             }
-    
-            // Get the updated number of likes for the artwork
             $updatedLikes = $likeModel->where(['artwork_id' => $artworkId])->countAllResults();
             $response['likesCount'] = $updatedLikes;
     
             return $this->respond($response);
         } catch (Exception $e) {
-            // Handle JWT decoding errors
             return $this->failUnauthorized('Invalid token');
         }
     }
